@@ -1,21 +1,30 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) {
+        PrintWriter outputChanel;
+        BufferedReader bufferedReader;
+        Socket socket;
+        ServerSocket server;
         try {
-            ServerSocket server = new ServerSocket(8080);
-            Message message;
+            server = new ServerSocket(8080);
+            socket = server.accept();
+            System.out.println("ha entrado un cliente");
+            bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            outputChanel = new PrintWriter(socket.getOutputStream(), true);
+            String line;
+            while ((line = bufferedReader.readLine()) != null && !line.equals(".")) {
+                TimeUnit.SECONDS.sleep(1);
+                outputChanel.println(line.toUpperCase());
+            }
 
-
-            Socket socket = server.accept();
-            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-            message = (Message) ois.readObject();
-            System.out.println("Mensaje: " + message.getMessage());
-            ois.close();
-            socket.close();
-        } catch(IOException | ClassNotFoundException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
